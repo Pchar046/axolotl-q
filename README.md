@@ -123,7 +123,7 @@ python main.py              # live seed-0 run + quantum test
 
 **Libraries:** Qiskit, NumPy, SciPy (analysis only), Qiskit Aer (local testing only).
 **Templates:** none. Built from scratch during the hackathon window.
-**AI assistance:** built with help from Claude (Anthropic). At my direction, Claude researched prior work, wrote the code, and helped write this README. I ran the 10 seed study on my own computer. I came up with the axolotl-inspired idea and the four-model design, directed the research, and made the decisions.
+**AI assistance:** built with help from Claude (Anthropic). At my direction, Claude researched prior work, wrote the code. I ran the 10 seed study on my own computer. I came up with the axolotl-inspired idea and the four-model design, directed the research, and made the decisions.
 
 ## License
 

@@ -1,0 +1,57 @@
+Loading packages… 
+Loading project files… 
+Compiling / initializing runtime… 
+Running... 
+=== Part 1: live experiment on Qollab (seed 0) === 
+trained classical brain: training  2.40  unseen  0.58  (72 parameters, 32s) 
+trained quantum brain: training  2.09  unseen -0.19  (72 parameters, 146s) 
+ 
+model  damage  healthy  after damage  after recovery 
+A classical         20%     2.40       2.40          2.40 
+A classical         30%     2.40       1.36          2.40 
+A classical         40%     2.40       2.40          2.40 
+B classical+regen   20%     2.40       2.40          2.40 
+B classical+regen   30%     2.40       1.36          2.40 
+B classical+regen   40%     2.40       2.40          2.40 
+C quantum           20%     2.09       0.28          2.05 
+C quantum           30%     2.09      -0.79          1.02 
+C quantum           40%     2.09      -0.36          1.25 
+D Axolotl-Q         20%     2.09       0.28          2.10 
+D Axolotl-Q         30%     2.09      -0.79          2.00 
+D Axolotl-Q         40%     2.09      -0.36          1.07 
+(one seed only: results vary by seed; see the 10-seed summary at the end) 
+ 
+=== Part 2: quantum brain on the selected backend === 
+ 
+One circuit: 6 brain-probes side by side, 24 qubits, 4096 shots 
+Circuit execution time: 269000ms 
+sampled on: ionq_simulator 
+ 
+healthy      probe 0: <Z> measured [ 0.05 -0.23 -0.22 -0.21]  exact [ 0.06 -0.24 -0.26 -0.24]  decision right vs right match 
+healthy      probe 1: <Z> measured [-0.01  0.27  0.41  0.12]  exact [0.01 0.3  0.45 0.15]  decision left  vs left  match 
+damaged      probe 0: <Z> measured [-0.06  0.07  0.11 -0.2 ]  exact [-0.07  0.09  0.11 -0.25]  decision left  vs left  match 
+damaged      probe 1: <Z> measured [ 0.4   0.09 -0.54 -0.17]  exact [ 0.45  0.1  -0.58 -0.19]  decision down  vs down  match 
+regenerated  probe 0: <Z> measured [ 0.06  0.11 -0.37  0.12]  exact [ 0.1   0.12 -0.42  0.13]  decision up    vs up    match 
+regenerated  probe 1: <Z> measured [-0.17 -0.13  0.46  0.07]  exact [-0.18 -0.14  0.52  0.04]  decision left  vs left  match 
+ 
+Decisions that match the exact simulation: 6/6 
+Average output error from hardware noise and sampling: 0.026 
+ 
+=== Part 3: 10-seed study (10 seeds, run on the author's laptop; code in run_study.py) === 
+H1 drop at 0.2                                 0.320 vs   0.106  better by       -201.2%  p=0.794  not supported 
+H1 drop at 0.3                                 1.081 vs   0.397  better by       -172.4%  p=0.919  not supported 
+H1 drop at 0.4                                 1.222 vs   0.526  better by       -132.2%  p=0.941  not supported 
+H2 classical B vs A at 0.2                     1.000 vs   1.000  better by         +0.0%  p=0.179  not supported 
+H2 quantum D vs C at 0.2                       1.070 vs   1.000  better by         +7.0%  p=0.125  not supported 
+H2 classical B vs A at 0.3                     1.000 vs   1.000  better by         +0.0%  p=0.292  not supported 
+H2 quantum D vs C at 0.3                       1.004 vs   0.941  better by         +6.7%  p=0.153  not supported 
+H2 classical B vs A at 0.4                     1.000 vs   1.000  better by         +0.0%  p=0.242  not supported 
+H2 quantum D vs C at 0.4                       1.000 vs   0.694  better by        +44.1%  p=0.153  not supported 
+H2 time D vs C at 0.2                          2.000 vs   4.000  better by        +50.0%  p=0.204  not supported 
+H2 time D vs C at 0.3                          4.000 vs  11.500  better by        +65.2%  p=0.283  not supported 
+H2 time D vs C at 0.4                          8.000 vs  19.000  better by        +57.9%  p=0.248  not supported 
+H3 gain D vs A                                -0.064 vs   0.061  better by       -204.1%  p=0.740  not supported 
+H3 gain D vs B                                -0.064 vs   0.079  better by       -180.3%  p=0.846  not supported 
+H3 gain D vs C                                -0.064 vs   0.147  better by       -143.4%  p=0.846  not supported 
+H4 train score Q vs C (equal params)           1.591 vs   2.499  better by        -36.4%  p=0.998  not supported 
+H4 unseen score Q vs C (equal params)          0.413 vs   1.127  better by        -63.3%  p=0.984  not supported 

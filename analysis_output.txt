@@ -1,0 +1,37 @@
+Seeds finished: 10
+
+Base agents (healthy):
+  base_c: train 2.50  unseen 1.13  params 72  avg 32s
+  base_q: train 1.59  unseen 0.41  params 72  avg 162s
+
+H1 graceful damage: quantum loses less right after damage (C vs A, lower is better)
+  H1 drop at 0.2                               median   0.320 vs   0.106  better by       -201.2%  p=0.794  not supported
+  H1 drop at 0.3                               median   1.081 vs   0.397  better by       -172.4%  p=0.919  not supported
+  H1 drop at 0.4                               median   1.222 vs   0.526  better by       -132.2%  p=0.941  not supported
+
+H2 regeneration helps: share of healthy score regained
+  H2 classical B vs A at 0.2                   median   1.000 vs   1.000  better by         +0.0%  p=0.179  not supported
+  H2 quantum D vs C at 0.2                     median   1.070 vs   1.000  better by         +7.0%  p=0.125  not supported
+  H2 classical B vs A at 0.3                   median   1.000 vs   1.000  better by         +0.0%  p=0.292  not supported
+  H2 quantum D vs C at 0.3                     median   1.004 vs   0.941  better by         +6.7%  p=0.153  not supported
+  H2 classical B vs A at 0.4                   median   1.000 vs   1.000  better by         +0.0%  p=0.242  not supported
+  H2 quantum D vs C at 0.4                     median   1.000 vs   0.694  better by        +44.1%  p=0.153  not supported
+  recovery time (generations to 90% of healthy, lower is better):
+  H2 time D vs C at 0.2                        median   2.000 vs   4.000  better by        +50.0%  p=0.204  not supported
+  H2 time D vs C at 0.3                        median   4.000 vs  11.500  better by        +65.2%  p=0.283  not supported
+  H2 time D vs C at 0.4                        median   8.000 vs  19.000  better by        +57.9%  p=0.248  not supported
+
+H3 generations get smarter: unseen-pond gain over 5 generations, D vs each
+  H3 gain D vs A                               median  -0.064 vs   0.061  better by       -204.1%  p=0.740  not supported
+  H3 gain D vs B                               median  -0.064 vs   0.079  better by       -180.3%  p=0.846  not supported
+  H3 gain D vs C                               median  -0.064 vs   0.147  better by       -143.4%  p=0.846  not supported
+
+H4 efficiency: same parameter count, compare healthy score (quantum vs classical)
+  H4 train score Q vs C (equal params)         median   1.591 vs   2.499  better by        -36.4%  p=0.998  not supported
+  H4 unseen score Q vs C (equal params)        median   0.413 vs   1.127  better by        -63.3%  p=0.984  not supported
+
+Median table:
+  A: 0.2: drop  10.6% rec 100.0%  0.3: drop  39.7% rec 100.0%  0.4: drop  52.6% rec 100.0%  | gen gain +0.06
+  B: 0.2: drop  10.6% rec 100.0%  0.3: drop  39.7% rec 100.0%  0.4: drop  52.6% rec 100.0%  | gen gain +0.08
+  C: 0.2: drop  32.0% rec 100.0%  0.3: drop 108.1% rec  94.1%  0.4: drop 122.2% rec  69.4%  | gen gain +0.15
+  D: 0.2: drop  32.0% rec 107.0%  0.3: drop 108.1% rec 100.4%  0.4: drop 122.2% rec 100.0%  | gen gain -0.06

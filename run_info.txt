@@ -1,0 +1,9 @@
+Axolotl-Q 10-seed study: where it ran
+finished: 2026-10-11T10:45:17
+computer: LAPTOP-DHERDS2S
+system: Windows-11-10.0.26200-SP0
+processor: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD
+CPU cores used: 10 of 12
+python: 3.15.0  numpy: 2.5.4
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+total time: 26.2 minutes

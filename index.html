@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Axolotl Q Lab</title>
+<meta name="description" content="Interactive results for Axolotl Q: can a quantum AI brain regenerate after damage, like an axolotl?">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b24; --panel2:#1d2430; --line:#2a3342;
+  --ink:#e8edf4; --muted:#93a0b4; --pink:#ff8fb8; --pinkd:#c45a85;
+  --teal:#4fd1c5; --gold:#f5c26b; --red:#ff6b6b; --green:#6ee7a0; --blue:#7aa7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+a{color:var(--teal)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header{padding:40px 0 20px}
+.tag{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--pink);border:1px solid var(--pinkd);border-radius:999px;padding:3px 10px}
+h1{font-size:clamp(30px,5vw,48px);margin:12px 0 6px;line-height:1.1}
+h1 span{color:var(--pink)}
+.sub{color:var(--muted);max-width:720px;font-size:17px;margin:0}
+h2{font-size:22px;margin:0 0 4px}
+.lead{color:var(--muted);margin:0 0 18px}
+section{margin:28px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.grid2{grid-template-columns:1fr !important}}
+.controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{background:none;border:0;color:var(--muted);font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--bg);font-weight:600}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{display:none}
+.sw{width:42px;height:24px;background:var(--line);border-radius:99px;position:relative;transition:.2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;background:var(--ink);border-radius:50%;transition:.2s}
+.toggle input:checked + .sw{background:var(--green)}
+.toggle input:checked + .sw::after{left:21px}
+.btn{background:var(--pink);color:#2a0b18;border:0;font:inherit;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+#brain{width:100%;height:auto;display:block}
+.status{min-height:24px;font-size:15px;margin-top:8px}
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar .top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px}
+.bar .track{height:14px;background:var(--panel2);border-radius:99px;overflow:hidden;position:relative}
+.bar .fill{height:100%;border-radius:99px;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.bar .mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--muted);opacity:.6}
+.big{font-size:40px;font-weight:800;line-height:1}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.stat{background:var(--panel2);border-radius:12px;padding:12px}
+.stat .v{font-size:22px;font-weight:700}
+.stat .k{font-size:12px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+td.n{font-variant-numeric:tabular-nums}
+.win{color:var(--green);font-weight:700}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--panel2);color:var(--muted)}
+.pill.ok{background:rgba(110,231,160,.15);color:var(--green)}
+.pill.no{background:rgba(255,107,107,.12);color:var(--red)}
+.pill.trend{background:rgba(245,194,107,.15);color:var(--gold)}
+.probes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:620px){.probes{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}}
+.probe{background:var(--panel2);border-radius:12px;padding:12px;font-size:13px}
+.probe b{display:block;font-size:14px;margin-bottom:4px;text-transform:capitalize}
+.qrow{display:flex;gap:4px;align-items:flex-end;height:46px;margin:8px 0}
+.qcol{flex:1;display:flex;flex-direction:column;justify-content:center;height:100%;position:relative}
+.qcol i{position:absolute;left:0;right:0;border-radius:3px}
+.hz{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.hyp{display:grid;gap:10px}
+.hyp .row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:var(--panel2);border-radius:12px;padding:12px}
+.hyp .id{font-weight:800;color:var(--pink)}
+footer{color:var(--muted);font-size:13px;padding:30px 0 50px;border-top:1px solid var(--line);margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <span class="tag">Qollab × IonQ hackathon</span>
+  <h1>Axolotl <span>Q</span> Lab</h1>
+  <p class="sub">When an axolotl's brain is damaged, it regrows the missing tissue and gets its behavior back. Can a quantum AI brain do the same? Damage one below and watch.</p>
+</header>
+
+<section class="card">
+  <h2>Damage a brain</h2>
+  <p class="lead">Each brain has 72 parameters: sense → <b>integrate</b> → decide. Here the brain is drawn like tissue: each colored region of the core holds one of its 16 integrate parameters (in quantum brains, one gate angle). Damage hits the core.</p>
+  <div class="controls">
+    <div class="seg" id="segType"><button data-v="c">Classical</button><button data-v="q" class="on">Quantum</button></div>
+    <div class="seg" id="segDmg"><button data-v="0.2">20%</button><button data-v="0.3">30%</button><button data-v="0.4" class="on">40%</button></div>
+    <label class="toggle"><input type="checkbox" id="regen" checked><span class="sw"></span>Regeneration</label>
+    <button class="btn" id="go">Damage it</button>
+  </div>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr">
+    <div>
+      <div class="label" id="brainLabel">Quantum integrate core: 4 qubits, 2 layers</div>
+      <canvas id="brainCv" width="1600" height="1000" style="width:100%;height:auto;display:block;border-radius:12px;background:#05070b" aria-label="AI brain drawn as tissue"></canvas>
+      <div class="legend" style="margin-top:8px"><span style="--c:#22d3ee">integrate core (16 regions)</span><span style="--c:#be185d">sense &amp; decide</span><span style="--c:#4ade80">stem lining</span><span style="--c:#ef4444">lost / reactive</span><span style="--c:#a78bfa">progenitor</span><span style="--c:#f59e0b">immature</span></div>
+      <div class="status" id="status">Pick settings, then press <b>Damage it</b>.</div>
+    </div>
+    <div>
+      <div class="label">10-seed study on my laptop (median, share of healthy skill)</div>
+      <div class="bars">
+        <div class="bar"><div class="top"><span>Healthy</span><span id="vH">100%</span></div><div class="track"><div class="fill" id="bH" style="background:var(--teal)"></div></div></div>
+        <div class="bar"><div class="top"><span>Right after damage</span><span id="vD">–</span></div><div class="track"><div class="fill" id="bD" style="background:var(--red)"></div></div></div>
+        <div class="bar"><div class="top"><span>After recovery</span><span id="vR">–</span></div><div class="track"><div class="fill" id="bR" style="background:var(--green)"></div></div></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="sLost">–</div><div class="k">skill lost to damage</div></div>
+        <div class="stat"><div class="v" id="sRec">–</div><div class="k">skill regained</div></div>
+        <div class="stat"><div class="v" id="sTime">–</div><div class="k">rounds to 90%</div></div>
+      </div>
+      <p class="note" id="insight"></p>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="bio">
+  <h2>Regeneration, cell by cell</h2>
+  <p class="lead">The biology that inspired the project. A cross-section of an axolotl forebrain: injure one side, then watch stem-like cells along the ventricle wake up, divide, migrate into the wound, and mature into new neurons.</p>
+  <div class="controls">
+    <button class="btn" id="bioPlay">Injure &amp; regenerate</button>
+    <div class="seg"><button id="bioReset">Reset</button></div>
+    <input type="range" id="bioDay" min="0" max="16" step="0.05" value="0" style="flex:1;min-width:140px;accent-color:#ff8fb8" aria-label="Day after injury">
+    <span class="pill" id="bioDayLbl">healthy</span>
+  </div>
+  <canvas id="bioCanvas" width="1600" height="1000" style="width:100%;height:auto;display:block;border-radius:12px;background:#05070b"></canvas>
+  <div class="legend" style="margin-top:10px">
+    <span style="--c:#4ade80">ventricle lining (stem-like cells)</span>
+    <span style="--c:#ef4444">reactive progenitor</span>
+    <span style="--c:#a78bfa">intermediate progenitor</span>
+    <span style="--c:#f59e0b">immature neuron</span>
+    <span style="--c:#3b82f6">mature neuron</span>
+  </div>
+  <div class="status" id="bioStage">Press <b>Injure &amp; regenerate</b>, or drag the slider through the days.</div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="stat"><div class="k" style="margin-bottom:4px">AXOLOTL</div>injury → stem cells wake up → divide and migrate → become new neurons → behavior returns</div>
+    <div class="stat"><div class="k" style="margin-bottom:4px">AXOLOTL Q</div>damage → find the injured module → regrow lost parts from small "stem" values → retrain only that module → skill returns</div>
+  </div>
+  <p class="note">An illustration of the published biology (e.g., Wei et al., <i>Science</i> 2022, a spatial cell atlas of axolotl brain regeneration), not measured data. Timing is simplified.</p>
+</section>
+
+<section class="card">
+  <h2>Quantum brain: with vs. without regeneration</h2>
+  <p class="lead">Median share of healthy skill regained, and training rounds to get back to 90%. Same damage, same training budget.</p>
+  <table>
+    <thead><tr><th>Damage</th><th>C: no regeneration</th><th>D: Axolotl Q</th><th>Rounds to 90% (C → D)</th></tr></thead>
+    <tbody id="cmp"></tbody>
+  </table>
+  <p class="note">Classical brains (A and B) recovered 100% at every level, with or without regeneration. They lost less to begin with.</p>
+</section>
+
+<section class="card">
+  <h2>Live on Qollab, then IonQ Aria 1</h2>
+  <p class="lead">A fresh run inside Qollab's browser (seed 0). Healthy quantum score: 2.09.</p>
+  <table>
+    <thead><tr><th>Damage</th><th>After damage</th><th>C: retrain</th><th>D: regenerate</th></tr></thead>
+    <tbody id="live"></tbody>
+  </table>
+  <div style="height:18px"></div>
+  <div class="label">Same quantum brains on the IonQ Aria 1 noise model: 24 qubits, one job, 4096 shots</div>
+  <div class="probes" id="probes"></div>
+  <div class="legend" style="margin-top:10px"><span style="--c:var(--blue)">measured on IonQ Aria 1</span><span style="--c:var(--muted)">exact simulation</span></div>
+  <p class="note"><b class="win">6 / 6 decisions matched</b> the exact simulation. Average output error: 0.026. The regenerated brain holds up under IonQ's noise.</p>
+</section>
+
+<section class="card">
+  <h2>Honest scorecard</h2>
+  <p class="lead">Bar set before testing: p &lt; 0.05 and an effect of at least 10%, across 10 seeds.</p>
+  <div class="hyp">
+    <div class="row"><div class="id">H1</div><div>Quantum handles damage more gracefully.<br><span class="pill">It went the other way: quantum lost 2 to 3× more.</span></div><span class="pill no">not supported</span></div>
+    <div class="row"><div class="id">H2</div><div>Regeneration helps recovery.<br><span class="pill">Quantum: 100% vs. 69% at 40% damage, 2 to 3× faster. p ≈ 0.13 to 0.29.</span></div><span class="pill trend">strongest trend</span></div>
+    <div class="row"><div class="id">H3</div><div>Generations get smarter on unseen ponds.<br><span class="pill">No consistent gain.</span></div><span class="pill no">not supported</span></div>
+    <div class="row"><div class="id">H4</div><div>Quantum is more efficient at equal size.<br><span class="pill">Classical scored higher (2.50 vs. 1.59).</span></div><span class="pill no">not supported</span></div>
+  </div>
+  <p class="note">What it means: the quantum brain was more fragile, and axolotl-style regeneration helped it the most. Ten seeds isn't enough to call it proven. Next: 30+ seeds, bigger circuits, and real hardware damage such as a noisy or dead qubit.</p>
+</section>
+
+<footer>
+  Axolotl Q by Patrick Charles (Qollab: Charpat160). MIT License. 10-seed study run on my laptop (Windows 11, 10 CPU cores, 26 minutes). Live run on Qollab with the IonQ Aria 1 noise model. Built with help from Claude (Anthropic). This effort is supported by Qollab &amp; IonQ.
+</footer>
+</div>
+
+<script>
+// ---- real results ----
+// 10-seed medians from analysis_output.txt (laptop run)
+const STUDY = {
+  c: { drop:{0.2:.106,0.3:.397,0.4:.526}, rec:{0.2:1,0.3:1,0.4:1}, recRegen:{0.2:1,0.3:1,0.4:1}, t90:null },
+  q: { drop:{0.2:.320,0.3:1.081,0.4:1.222}, rec:{0.2:1,0.3:.941,0.4:.694}, recRegen:{0.2:1.070,0.3:1.004,0.4:1.0},
+       t90:{0.2:4,0.3:11.5,0.4:19}, t90Regen:{0.2:2,0.3:4,0.4:8} }
+};
+// live Qollab run (seed 0), qollab_ionq_aria1_run1.txt
+const LIVE = { healthy:2.09, rows:[[0.2,0.28,2.05,2.10],[0.3,-0.79,1.02,2.00],[0.4,-0.36,1.25,1.07]] };
+const PROBES = [
+  ["healthy",0,[0.05,-0.23,-0.22,-0.21],[0.06,-0.24,-0.26,-0.24],"right"],
+  ["healthy",1,[-0.01,0.27,0.41,0.12],[0.01,0.30,0.45,0.15],"left"],
+  ["damaged",0,[-0.06,0.07,0.11,-0.20],[-0.07,0.09,0.11,-0.25],"left"],
+  ["damaged",1,[0.40,0.09,-0.54,-0.17],[0.45,0.10,-0.58,-0.19],"down"],
+  ["regenerated",0,[0.06,0.11,-0.37,0.12],[0.10,0.12,-0.42,0.13],"up"],
+  ["regenerated",1,[-0.17,-0.13,0.46,0.07],[-0.18,-0.14,0.52,0.04],"left"]
+];
+
+// ---- state ----
+let type="q", dmg=0.4, regen=true, busy=false;
+const $=id=>document.getElementById(id);
+const pct=x=>Math.round(x*100)+"%";
+
+function seg(id,cb){ $(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{ if(busy)return;
+  $(id).querySelectorAll("button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); cb(b.dataset.v); reset(); });}
+seg("segType",v=>type=v); seg("segDmg",v=>dmg=+v);
+$("regen").onchange=e=>{regen=e.target.checked; reset();};
+
+// ---- brain drawing: 16 integrate parameters ----
+const NS="http://www.w3.org/2000/svg";
+let cells=[];
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||$("brain")).appendChild(e);return e;}
+// ---- AI brain drawn as tissue: 16 colored regions = the 16 integrate parameters ----
+const BR=(function(){
+  const cv=$("brainCv"), cx=cv.getContext("2d"), W=800, H=500; cx.scale(2,2);
+  let seed=23; const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const MX=400, CY=255;
+  const vent=s=>{const pts=[];for(let t=0;t<=1.0001;t+=0.02)pts.push([MX+s*(175-95*t*t), 95+275*t]);return pts;};
+  const V=[vent(-1),vent(1)];
+  const dVent=(x,y)=>{let m=1e9;for(const L of V)for(const p of L){const d=Math.hypot(x-p[0],y-p[1]);if(d<m)m=d;}return m;};
+  const inside=(x,y)=>{const e=((x-MX)/330)**2+((y-CY)/215)**2; if(e>1)return false;
+    if(Math.abs(x-MX)<12+(y<300?8:0) && y<330) return false; if(y>390 && Math.abs(x-MX)<60) return false; return true;};
+  const PAL=[["#0e7490","#22d3ee"],["#1d4ed8","#60a5fa"],["#6d28d9","#a78bfa"],["#3730a3","#818cf8"]];
+  const cells=[], lining=[], grid=new Map(), G=6;
+  const near=(x,y)=>{const gx=Math.floor(x/G),gy=Math.floor(y/G);for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const a=grid.get((gx+i)+","+(gy+j));if(a)for(const c of a)if(Math.hypot(c.x-x,c.y-y)<5.4)return true;}return false;};
+  for(let i=0;i<40000 && cells.length<5200;i++){
+    const x=40+rnd()*720, y=35+rnd()*440; if(!inside(x,y))continue;
+    const d=dVent(x,y); if(d<10||near(x,y))continue;
+    const c={x,y,r:2.1+rnd()*0.8,reg:-1};
+    if(d<16){c.col="#4ade80"; c.lin=true; lining.push(c);}
+    else if(x<120||x>680||y>420){c.col=rnd()<.5?"#be185d":"#9d174d";}
+    else { const h=x<MX?0:1, q=Math.min(3,Math.max(0,Math.floor((y-60)/92))), g=d<62?0:1;
+      c.reg=h*8+q*2+g; const pal=PAL[q]; c.col = g===0 ? (rnd()<.7?pal[0]:pal[1]) : (rnd()<.3?pal[0]:pal[1]); }
+    cells.push(c); const k=Math.floor(x/G)+","+Math.floor(y/G); if(!grid.has(k))grid.set(k,[]); grid.get(k).push(c);
+  }
+  const mem=[]; for(let a=0;a<Math.PI*2;a+=0.018) mem.push([MX+345*Math.cos(a)+(rnd()-.5)*6, CY+228*Math.sin(a)+(rnd()-.5)*6]);
+  const cent=[...Array(16)].map((_,r)=>{const m=cells.filter(c=>c.reg===r);return [m.reduce((a,c)=>a+c.x,0)/m.length, m.reduce((a,c)=>a+c.y,0)/m.length];});
+  let st={lost:new Set(),phase:"healthy",p:0,born:[],active:new Set(),kind:"q"};
+  const regName=r=>{const h=Math.floor(r/8), q=Math.floor((r%8)/2), g=r%2;
+    return st.kind==="q" ? `${g?"RZ":"RY"} q${q} L${h+1}` : `w${r}`;};
+  function setLost(list){
+    st.lost=new Set(list); st.active=new Set();
+    st.born=cells.filter(c=>st.lost.has(c.reg)).map(c=>{
+      let best=lining[0],bd=1e9; for(const l of lining){const d=Math.hypot(l.x-c.x,l.y-c.y); if(d<bd){bd=d;best=l;}}
+      st.active.add(best);
+      return {c,sx:best.x+(rnd()-.5)*5,sy:best.y+(rnd()-.5)*5,birth:rnd()*0.45,travel:0.35+rnd()*0.2};});
+  }
+  function render(){
+    const {phase,p}=st; cx.clearRect(0,0,W,H);
+    cx.fillStyle="#d9c74a"; cx.globalAlpha=.5; for(const [x,y] of mem){cx.beginPath();cx.arc(x,y,1.6,0,7);cx.fill();} cx.globalAlpha=1;
+    for(const c of cells){
+      let col=c.col, a=1;
+      if(st.lost.has(c.reg)){
+        if(phase==="damage"){ col="#ef4444"; a=Math.max(0,1-p*1.15); if(a<=0)continue; }
+        else if(phase==="noregen"){ if(c.x*7%5>1)continue; col="#3b4252"; a=.5*p; }
+        else continue;
+      } else if(c.lin && phase==="regen" && st.active.has(c) && p<0.9){ col="#ef4444"; }
+      cx.globalAlpha=a; cx.fillStyle=col; cx.beginPath(); cx.arc(c.x,c.y,c.r,0,7); cx.fill();
+    }
+    cx.globalAlpha=1;
+    if(phase==="regen"){
+      for(const b of st.born){ const f=Math.min(1,Math.max(0,(p-b.birth)/b.travel)); if(p<b.birth)continue;
+        const e=f*f*(3-2*f), x=b.sx+(b.c.x-b.sx)*e, y=b.sy+(b.c.y-b.sy)*e;
+        cx.fillStyle = f<.3?"#ef4444": f<.6?"#a78bfa": f<.9?"#f59e0b": b.c.col;
+        cx.beginPath(); cx.arc(x,y,b.c.r,0,7); cx.fill(); }
+    }
+    if(st.lost.size && (phase!=="regen" || p<0.35)){
+      cx.font="600 12px system-ui"; cx.textAlign="center";
+      for(const r of st.lost){ const [x,y]=cent[r]; const t=regName(r), w=cx.measureText(t).width+10;
+        cx.fillStyle="rgba(5,7,11,.8)"; cx.fillRect(x-w/2,y-9,w,17); cx.fillStyle="#fca5a5"; cx.fillText(t,x,y+4); }
+      cx.textAlign="left";
+    }
+  }
+  function animate(phase,ms){ st.phase=phase; st.p=0; return new Promise(res=>{const t0=performance.now();
+    const step=t=>{st.p=Math.min(1,(t-t0)/ms); render(); if(st.p<1)requestAnimationFrame(step); else res();}; requestAnimationFrame(step);});}
+  function reset(kind){ st.kind=kind; st.lost=new Set(); st.phase="healthy"; st.p=0; render(); }
+  return {setLost,animate,reset};
+})();
+function draw(){
+  $("brainLabel").textContent = type==="q"
+    ? "Quantum brain core as tissue: 16 regions = 16 gate angles (4 qubits × 2 layers × RY/RZ)"
+    : "Classical brain core as tissue: 16 regions = 16 weights";
+  BR.reset(type);
+}
+function lostSet(){ const n=Math.round(16*dmg); const idx=[...Array(16).keys()];
+  let s=Math.floor(dmg*1000)+(type==="q"?7:3); for(let i=15;i>0;i--){ s=(s*9301+49297)%233280; const j=Math.floor(s/233280*(i+1)); [idx[i],idx[j]]=[idx[j],idx[i]]; }
+  return idx.slice(0,n); }
+
+function setBar(id,vid,v,text){ $(id).style.width=Math.max(0,Math.min(1,v))*100+"%"; $(vid).textContent=text; }
+function reset(){ draw(); setBar("bH","vH",1,"100%"); setBar("bD","vD",0,"–"); setBar("bR","vR",0,"–");
+  ["sLost","sRec","sTime"].forEach(i=>$(i).textContent="–"); $("insight").textContent="";
+  $("status").innerHTML="Pick settings, then press <b>Damage it</b>."; }
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+$("go").onclick=async()=>{
+  if(busy)return; busy=true; $("go").disabled=true; draw();
+  const S=STUDY[type], lost=lostSet(); BR.setLost(lost);
+  $("status").innerHTML=`Removing <b>${lost.length} of 16</b> regions of the core…`;
+  await BR.animate("damage",1500);
+  const after=1-S.drop[dmg];
+  setBar("bD","vD",after, after<0 ? "below zero ("+pct(after)+")" : pct(after));
+  $("sLost").textContent=pct(S.drop[dmg]);
+  await wait(600);
+  const rec = regen ? S.recRegen[dmg] : S.rec[dmg];
+  if(regen){
+    $("status").innerHTML="Injury found. Stem lining wakes up (red); new cells migrate in and mature, then only that module retrains…";
+    await BR.animate("regen",4500);
+    $("status").innerHTML="Regenerated. The rest of the brain stayed fixed.";
+  } else {
+    $("status").innerHTML="No regeneration: the lost regions stay lost; the rest of the brain retrains around the gap.";
+    await BR.animate("noregen",1200);
+  }
+  setBar("bR","vR",rec,pct(rec));
+  $("sRec").textContent=pct(rec);
+  const t = S.t90 ? (regen ? S.t90Regen[dmg] : S.t90[dmg]) : null;
+  $("sTime").textContent = t==null ? "n/a" : t;
+  $("insight").innerHTML = type==="c"
+    ? "Classical brains lost less and recovered fully either way. Regeneration made no difference for them."
+    : regen
+      ? `With regeneration, the quantum brain regained <b>${pct(rec)}</b> vs. ${pct(S.rec[dmg])} without, in ${S.t90Regen[dmg]} rounds vs. ${S.t90[dmg]}.`
+      : `Without regeneration it regained ${pct(rec)}. Turn regeneration on to compare.`;
+  busy=false; $("go").disabled=false;
+};
+
+// tables
+$("cmp").innerHTML=[0.2,0.3,0.4].map(d=>{const q=STUDY.q;
+  return `<tr><td>${d*100}%</td><td class="n">${pct(q.rec[d])}</td><td class="n win">${pct(q.recRegen[d])}</td><td class="n">${q.t90[d]} → <span class="win">${q.t90Regen[d]}</span></td></tr>`}).join("");
+$("live").innerHTML=LIVE.rows.map(([d,a,c,r])=>`<tr><td>${d*100}%</td><td class="n">${a.toFixed(2)}</td>
+  <td class="n ${c>r?"win":""}">${c.toFixed(2)}</td><td class="n ${r>c?"win":""}">${r.toFixed(2)}</td></tr>`).join("");
+$("probes").innerHTML=PROBES.map(([n,i,m,e,dec])=>`<div class="probe"><b>${n} · situation ${i+1}</b>
+  <div class="qrow">${m.map((v,k)=>`<div class="qcol"><div class="hz"></div>
+    <i style="background:var(--blue);width:45%;left:5%;right:auto;${v>=0?`bottom:50%;height:${v*50}%`:`top:50%;height:${-v*50}%`}"></i>
+    <i style="background:#93a0b4;opacity:.6;width:45%;left:52%;right:auto;${e[k]>=0?`bottom:50%;height:${e[k]*50}%`:`top:50%;height:${-e[k]*50}%`}"></i></div>`).join("")}</div>
+  decision: <b style="display:inline;color:var(--green)">${dec}</b> = ${dec} ✓</div>`).join("");
+reset();
+
+// ---- cell-by-cell regeneration sim (illustration) ----
+(function(){
+  const cv=$("bioCanvas"), cx=cv.getContext("2d"), W=800, H=500; cx.scale(2,2);
+  let seed=11; const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const MX=400, CY=255;
+  // ventricle centre-lines: one U-ish slit per hemisphere
+  const vent=s=>{const pts=[];for(let t=0;t<=1.0001;t+=0.02)pts.push([MX+s*(175-95*t*t), 95+275*t]);return pts;};
+  const V=[vent(-1),vent(1)];
+  const dVent=(x,y)=>{let m=1e9,best=null;for(const L of V)for(const p of L){const d=Math.hypot(x-p[0],y-p[1]);if(d<m){m=d;best=p;}}return [m,best];};
+  const inside=(x,y)=>{const e=((x-MX)/330)**2+((y-CY)/215)**2; if(e>1)return false;
+    if(Math.abs(x-MX)<12+ (y<300?8:0) && y<330) return false; // midline cleft
+    if(y>390 && Math.abs(x-MX)<60) return false; return true;};
+  const INJ={x:632,y:230,rx:62,ry:100};
+  const inInj=(x,y)=>((x-INJ.x)/INJ.rx)**2+((y-INJ.y)/INJ.ry)**2<1;
+  const tissue=["#1e3a8a","#2563eb","#3b82f6","#6d28d9","#7c3aed","#0e7490","#0891b2","#155e75","#4338ca"];
+  const cells=[], lining=[], grid=new Map(), G=6;
+  const key=(x,y)=>Math.floor(x/G)+","+Math.floor(y/G);
+  const near=(x,y)=>{const gx=Math.floor(x/G),gy=Math.floor(y/G);for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const a=grid.get((gx+i)+","+(gy+j));if(a)for(const c of a)if(Math.hypot(c.x-x,c.y-y)<5.4)return true;}return false;};
+  for(let i=0;i<40000 && cells.length<5200;i++){
+    const x=40+rnd()*720, y=35+rnd()*440; if(!inside(x,y))continue;
+    const [d]=dVent(x,y); if(d<10)continue;
+    if(near(x,y))continue;
+    const lin=d<16;
+    const c={x,y,r:2.1+rnd()*0.8,col: lin?"#4ade80": (x<120||x>680||y>420? (rnd()<.5?"#be185d":"#9d174d") : tissue[Math.floor(rnd()*tissue.length)]), lin, inj:inInj(x,y)};
+    c.mature=c.col; cells.push(c); if(lin)lining.push(c);
+    const k=key(x,y); if(!grid.has(k))grid.set(k,[]); grid.get(k).push(c);
+  }
+  // membrane dots
+  const mem=[]; for(let a=0;a<Math.PI*2;a+=0.018){mem.push([MX+345*Math.cos(a)+(rnd()-.5)*6, CY+228*Math.sin(a)+(rnd()-.5)*6]);}
+  // newborn cells: one per lost cell, born from the nearest lining near the injury
+  const lost=cells.filter(c=>c.inj&&!c.lin);
+  const nearLin=lining.filter(l=>l.x>MX && Math.hypot(l.x-INJ.x,l.y-INJ.y)<190);
+  const born=lost.map(c=>{const src=nearLin.reduce((b,l)=>Math.hypot(l.x-c.x,l.y-c.y)<Math.hypot(b.x-c.x,b.y-c.y)?l:b,nearLin[0]);
+    return {tx:c.x,ty:c.y,sx:src.x+(rnd()-.5)*6,sy:src.y+(rnd()-.5)*6,src,birth:1.8+rnd()*6.5,travel:3+rnd()*3,r:c.r,final:c.mature};});
+  const stageCol=age=>age<2?"#ef4444":age<4.2?"#a78bfa":age<6.8?"#f59e0b":"#3b82f6";
+  function draw(day,injured){
+    cx.clearRect(0,0,W,H);
+    cx.fillStyle="#d9c74a"; for(const [x,y] of mem){cx.globalAlpha=.55;cx.beginPath();cx.arc(x,y,1.6,0,7);cx.fill();} cx.globalAlpha=1;
+    for(const c of cells){
+      if(injured && c.inj && !c.lin){ const fade=Math.max(0,1-day*4); if(fade<=0)continue; cx.globalAlpha=fade; cx.fillStyle="#ef4444"; }
+      else if(injured && c.lin && nearLin.includes(c) && day>0.6 && day<10){ cx.fillStyle=day<7?"#ef4444":"#f87171"; }
+      else cx.fillStyle=c.col;
+      cx.beginPath(); cx.arc(c.x,c.y,c.r,0,7); cx.fill(); cx.globalAlpha=1;
+    }
+    if(injured){
+      if(day<5){ cx.strokeStyle="rgba(255,255,255,.75)"; cx.lineWidth=1.5; cx.setLineDash([5,4]);
+        cx.beginPath(); cx.ellipse(INJ.x,INJ.y,INJ.rx+6,INJ.ry+6,0,0,7); cx.stroke(); cx.setLineDash([]);}
+      for(const b of born){ const age=day-b.birth; if(age<0)continue;
+        const t=Math.min(1,age/b.travel), e=t*t*(3-2*t);
+        const x=b.sx+(b.tx-b.sx)*e, y=b.sy+(b.ty-b.sy)*e;
+        cx.fillStyle = day>15.2 ? b.final : stageCol(age); cx.beginPath(); cx.arc(x,y,b.r,0,7); cx.fill(); }
+    }
+    cx.fillStyle="#93a0b4"; cx.font="13px system-ui"; cx.fillText("ventricle",MX+150,78);
+    cx.fillText(injured? (day<0.05?"injury":"day "+Math.floor(day)+" after injury") : "healthy", 22, 28);
+  }
+  const STAGES=[[0,"Injury: a patch of neurons is lost."],[1,"Day 1+: stem-like cells lining the ventricle near the wound become reactive (red)."],
+    [3,"Days 3 to 8: they divide. Daughter cells become intermediate progenitors (purple) and start migrating."],
+    [7,"Days 7 to 12: migrating cells turn into immature neurons (orange) as they fill the wound."],
+    [11.5,"Days 12 to 15: they mature into neurons (blue) and reconnect. The tissue is rebuilt."],
+    [15.2,"Regenerated. The new neurons take the place of the lost ones, and behavior returns."]];
+  let injured=false, day=0, playing=false, last=0;
+  const setDay=d=>{day=d; $("bioDay").value=d; $("bioDayLbl").textContent=injured?(d<0.05?"injury":"day "+d.toFixed(0)):"healthy";
+    if(injured){let m=STAGES[0][1];for(const [t,txt] of STAGES)if(d>=t)m=txt;$("bioStage").textContent=m;} draw(d,injured);};
+  function loop(ts){ if(!playing)return; if(last){setDay(Math.min(16,day+(ts-last)/1000*1.1));} last=ts;
+    if(day>=16){playing=false;$("bioPlay").disabled=false;return;} requestAnimationFrame(loop);}
+  $("bioPlay").onclick=()=>{injured=true; setDay(0); playing=true; last=0; $("bioPlay").disabled=true; requestAnimationFrame(loop);};
+  $("bioReset").onclick=()=>{playing=false;injured=false;$("bioPlay").disabled=false;setDay(0);$("bioStage").innerHTML="Press <b>Injure &amp; regenerate</b>, or drag the slider through the days.";};
+  $("bioDay").oninput=e=>{playing=false;$("bioPlay").disabled=false;injured=true;setDay(+e.target.value);};
+  draw(0,false);
+})();
+</script>
+</body>
+</html>
